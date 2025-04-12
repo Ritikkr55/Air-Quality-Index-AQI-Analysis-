@@ -1,0 +1,76 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+df = pd.read_csv("C:/Users/ak825/Downloads/Air Quality Index Dataset.csv")
+sns.set(style="whitegrid")
+plt.rcParams["figure.figsize"] = (10, 6)
+
+# 1. Most Monitored Pollutants
+plt.figure()
+pollutant_counts = df['pollutant_id'].value_counts()
+sns.barplot(x=pollutant_counts.index, y=pollutant_counts.values, hue=pollutant_counts.index, palette='viridis', legend=False)
+plt.title('Most Monitored Pollutants')
+plt.xlabel('Pollutant')
+plt.ylabel('Count')
+plt.tight_layout()
+plt.show()
+
+# 2. Avg pollutant levels by city
+plt.figure()
+city_data = df.groupby('city')['pollutant_avg'].mean().sort_values(ascending=False).head(10).reset_index()
+city_data['city_encoded'] = range(len(city_data))
+sns.regplot(x='city_encoded', y='pollutant_avg', data=city_data, ci=None, scatter_kws={'s': 50}, line_kws={'color': 'red'})
+plt.xticks(city_data['city_encoded'], city_data['city'], rotation=45)
+plt.title('Top 10 Cities by Avg Pollutant Level with Regression')
+plt.xlabel('City')
+plt.ylabel('Average Pollutant Level')
+plt.tight_layout()
+plt.show()
+
+# 3. Top 5 States by Average Max Pollutant Level(Pie Chart)
+plt.figure()
+state_max = df.groupby('state')['pollutant_max'].mean().sort_values(ascending=False).head(5)
+plt.pie(state_max.values, labels=state_max.index, autopct='%1.1f%%', colors=sns.color_palette('pastel'))
+plt.title('Top 5 States by Avg Max Pollutant Level')
+plt.tight_layout()
+plt.show()
+
+# 4. Distribution of Pollutant Average(Histogram)
+plt.figure()
+sns.histplot(df['pollutant_avg'], kde=True, bins=30, color='skyblue')
+plt.title('Distribution of Pollutant Average')
+plt.xlabel('Pollutant Average')
+plt.ylabel('Frequency')
+plt.tight_layout()
+plt.show()
+
+# 5. Pollutant Min vs Max with Regression
+plt.figure()
+sns.regplot(x='pollutant_min', y='pollutant_max', data=df, scatter_kws={'alpha':0.5}, line_kws={"color": "red"})
+plt.title('Pollutant Min vs Max with Regression Line')
+plt.xlabel('Minimum Level')
+plt.ylabel('Maximum Level')
+plt.tight_layout()
+plt.show()
+
+# 6. Correlation Heatmap
+plt.figure()
+corr = df[['pollutant_min', 'pollutant_max', 'pollutant_avg']].corr()
+sns.heatmap(corr, annot=True, cmap='coolwarm', square=True)
+plt.title('Correlation Heatmap')
+plt.tight_layout()
+plt.show()
+
+
+# 7. Top 10 stations by pollutant_avg
+plt.figure()
+station_data = df.groupby('station')['pollutant_avg'].mean().sort_values(ascending=False).head(10).reset_index()
+station_data['station_encoded'] = range(len(station_data))
+sns.regplot(x='station_encoded', y='pollutant_avg', data=station_data, ci=None, scatter_kws={'color': 'purple'}, line_kws={'color': 'black'})
+plt.xticks(station_data['station_encoded'], station_data['station'], rotation=45)
+plt.title('Top 10 Stations by Pollutant Avg with Regression')
+plt.xlabel('Station')
+plt.ylabel('Average Pollutant Level')
+plt.tight_layout()
+plt.show()
